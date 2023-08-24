@@ -1,4 +1,6 @@
-﻿using Domain;
+﻿using Application.Core;
+using Domain;
+using FluentValidation;
 using MediatR;
 using Persistence;
 using System;
@@ -11,24 +13,38 @@ namespace Application.Activities
 {
     public class ThemMoi
     {
-        public class Command : IRequest
+        public class Command : IRequest<Result<Unit>>
         {
             public Activity Entity { get; set; }
         }
 
-        public class Handler : IRequestHandler<Command>
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                //RuleFor(x => x.Title).NotEmpty().WithMessage("chi la ri");
+                RuleFor(x => x.Entity).SetValidator(new ActivityValidator());
+            }
+        }
+
+        public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _dataContext;
             public Handler(DataContext dataContext)
             {
                 _dataContext = dataContext;
             }
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 _dataContext.Activity.Add(request.Entity);
-                await _dataContext.SaveChangesAsync();
+                var result = await _dataContext.SaveChangesAsync() > 0;
 
-                return Unit.Value;
+                if(!result)
+                {
+                    return Result<Unit>.Failure("Create error");
+                }
+
+                return Result<Unit>.Success(Unit.Value);
             }
         }
     }

@@ -2,27 +2,15 @@ using Application.Activities;
 using Application.Core;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using OpenDataSite.Extensions;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<DataContext>(opt =>
-{
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
 
-builder.Services.AddCors(opt =>
-{
-    opt.AddPolicy("CorsPolicy", policy =>
-    {
-        policy.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
-    });
-});
-
-builder.Services.AddMediatR(typeof(DanhSach.Handler));
-builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+builder.Services.AddApplicationServices(builder.Configuration);
 
 var app = builder.Build();
 

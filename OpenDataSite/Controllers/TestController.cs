@@ -25,17 +25,16 @@ namespace OpenDataSite.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Activity>> GetDetail(Guid id)
+        public async Task<IActionResult> GetDetail(Guid id)
         {
-            //return await _context.Activity.FindAsync(id);
-            //return Ok();
-            return await Mediator.Send(new ChiTiet.Query { Id = id });
+            var result = await Mediator.Send(new ChiTiet.Query { Id = id });
+            return HandleResult(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateTest([FromBody] Activity activity)
         {
-            return Ok(await Mediator.Send(new ThemMoi.Command { Entity = activity }));
+            return HandleResult(await Mediator.Send(new ThemMoi.Command { Entity = activity }));
         }
 
         [HttpPut("{id}")]
