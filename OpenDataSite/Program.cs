@@ -1,6 +1,8 @@
 using Application.Activities;
 using Application.Core;
+using Domain;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenDataSite.Extensions;
 using Persistence;
@@ -12,6 +14,19 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddApplicationServices(builder.Configuration);
 
+builder.Services.AddIdentity<AppUser, IdentityRole>(config =>
+{
+
+})
+    .AddEntityFrameworkStores<DataContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(config =>
+{
+    config.Cookie.Name = "Huecit.Cookie";
+    config.LoginPath = "/home/login";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,14 +37,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseCors("CorsPolicy");
+//app.UseStaticFiles();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+//app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors("CorsPolicy");
 
 app.MapControllerRoute(
     name: "default",
