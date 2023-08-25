@@ -14,6 +14,11 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddApplicationServices(builder.Configuration);
 
+builder.Services.AddIdentityCore<AppUser>(opt =>
+{
+    opt.Password.RequireNonAlphanumeric = false;
+});
+
 builder.Services.AddIdentity<AppUser, IdentityRole>(config =>
 {
 
@@ -60,8 +65,9 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
     await context.Database.MigrateAsync();
-    await Seed.SeedData(context);
+    await Seed.SeedData(context, userManager);
 }
 catch(System.Exception ex)
 {
