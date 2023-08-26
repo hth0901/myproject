@@ -54,6 +54,11 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapAreaControllerRoute(
+    name: "AdminTool",
+    areaName: "AdminTool",
+    pattern: "AdminTool/{controller=Home}/{action=Index}"
+);
 
 app.MapControllerRoute(
     name: "default",
