@@ -30,6 +30,8 @@ builder.Services.ConfigureApplicationCookie(config =>
 {
     config.Cookie.Name = "Huecit.Cookie";
     config.LoginPath = "/home/login";
+    config.ExpireTimeSpan = TimeSpan.FromSeconds(30);
+    config.SlidingExpiration = true;
 });
 
 var app = builder.Build();
@@ -71,8 +73,9 @@ try
 {
     var context = services.GetRequiredService<DataContext>();
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     await context.Database.MigrateAsync();
-    await Seed.SeedData(context, userManager);
+    await Seed.SeedData(context, userManager, roleManager);
 }
 catch(System.Exception ex)
 {
